@@ -36,8 +36,24 @@ class HoughLineCornerDetector:
     # x * cos(theta) + y * sin(theta) = rho
     # y * sin(theta) = x * (- cos(theta)) + rho
     # y = x * (-cos(theta) / sin(theta)) + rho
+
+    if theta1 == 0:
+       theta1 = 0.0001
+    if theta2 == 0:
+       theta2 = 0.0001
+
     m1 = -(np.cos(theta1) / np.sin(theta1))
     m2 = -(np.cos(theta2) / np.sin(theta2))
+
+    from cmath import isinf
+
+    if isinf(m1):
+       print("INVALID M1")
+       print(theta1)
+       print(theta2)
+
+
+
     return abs(atan(abs(m2-m1) / (1 + m2 * m1))) * (180 / np.pi)
 
     
@@ -58,3 +74,17 @@ class HoughLineCornerDetector:
     x0, y0 = np.linalg.solve(A, b)
     x0, y0 = int(np.round(x0)), int(np.round(y0))
     return [[x0, y0]]
+  
+  def _find_quadrilaterals(self, intersections):
+    X = np.array([[point[0][0], point[0][1]] for point in intersections])
+    kmeans = KMeans(
+        n_clusters = 4, 
+        init = 'k-means++', 
+        max_iter = 100, 
+        n_init = 10, 
+        random_state = 0
+    ).fit(X)
+
+    # if self.output_process: self._draw_quadrilaterals(self._lines, kmeans)
+
+    return  [[center.tolist()] for center in kmeans.cluster_centers_]

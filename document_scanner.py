@@ -3,7 +3,9 @@ import numpy as np
 from math import cos,sin
 from hough_lines_corners import HoughLineCornerDetector
 
-image_path = "my_doc_example.jpg"
+from sklearn.cluster import KMeans
+
+image_path = "my_doc_example3.jpg"
 
 
 image_height = 1200
@@ -93,24 +95,54 @@ for line in lines:
     
 
 
-    print(rho,theta)
 
 cv2.imshow("lines_image",lines_image)
 
 
 
-# for line in lines:
-
-
-# print(lines[0])
 
 
 corner_detector = HoughLineCornerDetector()
-corners = corner_detector._get_intersections(lines,image_width,image_height)
+corner_points = corner_detector._get_intersections(lines,image_width,image_height)
 
 
-print(type(lines_image))
+corners_image = lines_image.copy()
 
+
+for point in corner_points:
+    print(point)
+    x = point[0][0]
+    y = point[0][1]
+   
+    if 0<=x<image_width and 0 <= y < image_height: 
+        corners_image[y,x] = [255,0,0]
+    
+
+cv2.imshow("corners_image",corners_image)
+
+
+
+quadrilaterals_points = corner_detector._find_quadrilaterals(corner_points)
+
+
+print("QUADS")
+print( quadrilaterals_points)
+
+quadrilateral_image = lines_image.copy()
+
+
+for point in quadrilaterals_points:
+    # print(point)
+    x = int(point[0][0])
+    y = int(point[0][1])
+    
+    print(x)
+    print(y)
+    cv2.circle(quadrilateral_image, (y,x), radius=20, color=(0, 255, 0), thickness=-1)
+
+
+
+cv2.imshow("quadrilateral_image",quadrilateral_image)
 
 
 # print(lines)
@@ -118,6 +150,8 @@ print(type(lines_image))
 
 
 # ## make greyscale
+
+
 # ## blur, get rid of noise 
 
 # ## apply thresholding
@@ -127,7 +161,9 @@ print(type(lines_image))
 
 # ## use hough lines to get all the lines 
 
-# ## find corners of image 
+# ## find potential corners of image 
+
+## use k means to find best match for 4 corners
 
 # ## use detected corners on un-closed image 
 # ## to crop out non-document areas of image 

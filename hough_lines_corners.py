@@ -88,3 +88,43 @@ class HoughLineCornerDetector:
     # if self.output_process: self._draw_quadrilaterals(self._lines, kmeans)
 
     return  [[center.tolist()] for center in kmeans.cluster_centers_]
+  
+
+  def _order_points(pts):
+      """
+      Function for getting the bounding box points in the correct
+      order
+      Params
+      pts     The points in the bounding box. Usually (x, y) coordinates
+      Returns
+      rect    The ordered set of points
+      """
+      # initialzie a list of coordinates that will be ordered such that 
+      # 1st point -> Top left
+      # 2nd point -> Top right
+      # 3rd point -> Bottom right
+      # 4th point -> Bottom left
+      rect = np.zeros((4, 2), dtype = "float32")
+
+      # the top-left point will have the smallest sum, whereas
+      # the bottom-right point will have the largest sum
+
+      s = pts.sum(axis = 2)
+
+    
+      rect[0] = pts[np.argmin(s)]
+      rect[2] = pts[np.argmax(s)]
+      
+      # now, compute the difference between the points, the
+      # top-right point will have the smallest difference,
+      # whereas the bottom-left will have the largest difference
+      diff = np.diff(pts, axis = 2)
+
+      
+      rect[1] = pts[np.argmin(diff)]
+      rect[3] = pts[np.argmax(diff)]
+      
+      
+
+      # return the ordered coordinates
+      return rect

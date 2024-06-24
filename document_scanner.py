@@ -16,15 +16,16 @@ def getBestContourShape(contours):
           perimeter = cv2.arcLength(contour,True)
           area = cv2.contourArea(contour) 
           approx_vertices = cv2.approxPolyDP(contour, 0.02*perimeter, True)
-          if area > maxArea and len(approx_vertices)==4 :
+          if area > maxArea:## and len(approx_vertices)==4 :
                maxArea = area
                best = contour
+               print("APPROX VERTICES: ", len(approx_vertices))
     return best
 
                
 
 
-image_path = "My_Doc_Examples/my_doc_example7.jpg"
+image_path = "My_Doc_Examples/border3.jpg"
 
 
 
@@ -49,10 +50,13 @@ canny_upper_threshold= 180
 ## Read in image
 image = cv2.imread(image_path)
 
+## get dimensions of image
 initial_height , initial_width , initial_channels = image.shape
 
 
+## get final image dimensions
 image_ratio = initial_width/initial_height
+
 image_height = 1000
 image_width = floor(image_height*image_ratio)
 
@@ -63,12 +67,11 @@ cv2.imshow("image",image)
 
 
 ## Greyscale
-
 greyscale_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 cv2.imshow("greyscale_image",greyscale_image)
 
-
-contrast_image = apply_brightness_contrast(greyscale_image, 0,64)
+## Increase Contrast 
+contrast_image = apply_brightness_contrast(greyscale_image, 0,128)
 cv2.imshow("contrast_image",contrast_image)
 
 
@@ -80,9 +83,11 @@ cv2.imshow("blur_image",blur_image)
 
 
 ## Threshold Image
-threshold_used, thresholded_image = cv2.threshold(blur_image, 160,255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+threshold_used, thresholded_image = cv2.threshold(blur_image, 128,255, cv2.THRESH_BINARY)## + cv2.THRESH_OTSU)
 # thresholded_image = cv2.adaptiveThreshold(blur_image,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
 #  cv2.THRESH_BINARY,11,2)
+
+
 cv2.imshow("thresholded_image",thresholded_image)
 
 ## Closing 
@@ -90,7 +95,7 @@ closed_image = cv2.morphologyEx(
         thresholded_image,
         cv2.MORPH_CLOSE,
         closing_kernel,
-        iterations=0
+        iterations=3
     )
 cv2.imshow("closed_image",closed_image)
 
@@ -134,7 +139,7 @@ for points in contours:
 cv2.imshow("contours image: ", contours_img)
 
 
-
+## find best contour 
 best_contour = getBestContourShape(contours)
 
 if best_contour is not  None:
@@ -156,7 +161,7 @@ if best_contour is not  None:
 
 
 
-    ## Warp Image
+    ## Warp Image, and crop out background
     ordered_points = HoughLineCornerDetector._order_points(best_contour)
     print("ORDERED POINTS: ", ordered_points)
 

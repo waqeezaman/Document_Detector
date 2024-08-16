@@ -1,6 +1,6 @@
 import cv2 
 import numpy as np 
-from math import cos,sin,floor
+from math import floor
 
 from Contrast import apply_brightness_contrast
 
@@ -255,15 +255,22 @@ if __name__ == "__main__":
     outputImage = True
 
     if len(argv) < 2:
-        image_path = "My_Doc_Examples/border3.jpg"
+        image_path = "Question_Sheet_Photos/sheet1.png"
+        ## Read in image
+        image = cv2.imread(image_path)
+
+        extract_document(image)
+
+    
     else:
         image_path = argv[1]
 
 
-    ## Read in image
-    image = cv2.imread(image_path)
+        ## Read in image
+        image = cv2.imread("Question_Sheet_Photos/"+image_path)
 
-    extract_document(image)
+        cv2.imwrite("Question_Sheet_Scans/"+image_path,extract_document(image))
+
 
 
 
